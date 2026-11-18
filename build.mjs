@@ -28,9 +28,6 @@ const postsDir = path.join(root, 'posts');
 const publicDir = path.join(root, 'public');
 const outDir = path.join(root, 'dist');
 
-/* inline the stylesheet so the first paint never waits on a request */
-const css = await readFile(path.join(publicDir, 'style.css'), 'utf8');
-
 /* ------------------------------------------------------------------
    helpers
    ------------------------------------------------------------------ */
@@ -253,9 +250,9 @@ function layout({ title, description, body, canonical }) {
 <link rel="canonical" href="${url}">
 <link rel="icon" href="${favicon}">
 <link rel="alternate" type="application/rss+xml" title="${esc(site.title)}" href="/rss.xml">
-<style>${css}</style>
+<link rel="stylesheet" href="/style.css">
 </head>
-<body style="background-color:#130104">
+<body>
 <main class="page">
 ${body}
 </main>
