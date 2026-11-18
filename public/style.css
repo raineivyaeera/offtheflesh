@@ -128,7 +128,7 @@ hr {
    ---------------------------------------------------------------- */
 
 .masthead {
-	margin-bottom: 0.75rem;
+	margin-bottom: 1.5rem;
 }
 
 .masthead h1 {
@@ -265,11 +265,11 @@ hr {
 }
 
 .post-title {
-	color: var(--cream);
+	color: var(--red);
 }
 
 .post-link:hover .post-title {
-	color: var(--red);
+	color: var(--cream);
 }
 
 .post-excerpt {
