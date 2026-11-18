@@ -372,7 +372,7 @@ function indexPage(posts) {
       </span>`
 				: '';
 
-			return `    <li class="post" data-tags="${esc(p.tags.join(' '))}">
+			return `    <li class="post${thumb ? ' has-media' : ''}" data-tags="${esc(p.tags.join(' '))}">
       <a class="post-link" href="/posts/${esc(p.slug)}/">
         ${media}
         <span class="post-body">
