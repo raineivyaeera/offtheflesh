@@ -149,7 +149,9 @@ async function loadPosts() {
 			file,
 			title: data.title || base,
 			date,
-			tags: Array.isArray(data.tags) ? data.tags.map((t) => String(t).toLowerCase()) : [],
+			tags: Array.isArray(data.tags)
+				? data.tags.map((t) => String(t).toLowerCase().replace(/\s+/g, '-'))
+				: [],
 			summary: data.summary || excerptOf(html),
 			html,
 			minutes: readingTime(html),
