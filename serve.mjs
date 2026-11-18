@@ -3,7 +3,7 @@
 
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { watch } from 'node:fs';
+import { createReadStream, watch } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 
@@ -66,8 +66,39 @@ const server = http.createServer(async (req, res) => {
 			return;
 		}
 
+		const type = types[path.extname(file)] || 'application/octet-stream';
+		const range = req.headers.range;
+
+		if (range) {
+			const m = range.match(/bytes=(\d*)-(\d*)/);
+			if (!m) {
+				res.writeHead(416).end();
+				return;
+			}
+
+			const start = m[1] ? Number(m[1]) : 0;
+			const end = m[2] ? Number(m[2]) : info.size - 1;
+
+			if (start >= info.size || end >= info.size || start > end) {
+				res.writeHead(416, { 'content-range': `bytes */${info.size}` }).end();
+				return;
+			}
+
+			res.writeHead(206, {
+				'content-type': type,
+				'content-length': end - start + 1,
+				'content-range': `bytes ${start}-${end}/${info.size}`,
+				'accept-ranges': 'bytes',
+				'cache-control': 'no-cache',
+			});
+			createReadStream(file, { start, end }).pipe(res);
+			return;
+		}
+
 		res.writeHead(200, {
-			'content-type': types[path.extname(file)] || 'application/octet-stream',
+			'content-type': type,
+			'content-length': info.size,
+			'accept-ranges': 'bytes',
 			'cache-control': 'no-cache',
 		});
 		res.end(await readFile(file));

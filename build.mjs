@@ -112,6 +112,43 @@ function excerptOf(html, max = 180) {
 
 const readingTime = (html) => Math.max(1, Math.round(plain(html).split(/\s+/).length / 220));
 
+const attrOf = (tag, name) => {
+	const m = tag.match(new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'));
+	return m ? m[1] ?? m[2] ?? m[3] ?? '' : '';
+};
+
+/* the first image, sound or video in a post — used for the timeline */
+function mediaOf(html) {
+	const img = html.match(/<img\b[^>]*>/i);
+	const audio = html.match(/<audio\b[^>]*>/i);
+	const video = html.match(/<video\b[^>]*>/i);
+
+	const first = [
+		img && { kind: 'image', index: img.index },
+		audio && { kind: 'audio', index: audio.index },
+		video && { kind: 'video', index: video.index },
+	]
+		.filter(Boolean)
+		.sort((a, b) => a.index - b.index)[0];
+
+	if (!first) return null;
+
+	let audioSrc = audio ? attrOf(audio[0], 'src') : '';
+	if (audio && !audioSrc) {
+		const end = html.indexOf('</audio>', audio.index);
+		const block = html.slice(audio.index, end === -1 ? undefined : end);
+		const source = block.match(/<source\b[^>]*>/i);
+		if (source) audioSrc = attrOf(source[0], 'src');
+	}
+
+	return {
+		kind: first.kind,
+		image: img ? attrOf(img[0], 'src') : '',
+		poster: video ? attrOf(video[0], 'poster') : '',
+		audio: audioSrc,
+	};
+}
+
 /* ------------------------------------------------------------------
    load posts
    ------------------------------------------------------------------ */
@@ -154,6 +191,7 @@ async function loadPosts() {
 			summary: data.summary || excerptOf(html),
 			html,
 			minutes: readingTime(html),
+			media: mediaOf(html),
 		});
 	}
 
@@ -202,13 +240,16 @@ function layout({ title, description, body, canonical }) {
 <main class="page">
 ${body}
 </main>
-<footer class="site-footer"><sub>${esc(site.title)} — made with raine</sub></footer>
+<footer class="site-footer"><sub>of the flesh — made with raine © 2026</sub></footer>
 </body>
 </html>
 `;
 }
 
-const tagList = (tags) => tags.map((t) => `#${esc(t)}`).join(' ');
+const tagList = (tags) => tags.map((t) => esc(t)).join(' ');
+
+const playIcon = `<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>`;
+const pauseIcon = `<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2.5" width="3" height="11" fill="currentColor"/><rect x="9" y="2.5" width="3" height="11" fill="currentColor"/></svg>`;
 
 function indexPage(posts) {
 	const counts = new Map();
@@ -226,16 +267,42 @@ function indexPage(posts) {
 		.join('\n      ');
 
 	const items = posts
-		.map(
-			(p) => `    <li class="post" data-tags="${esc(p.tags.join(' '))}">
+		.map((p) => {
+			const m = p.media;
+			const showAudio = Boolean(m && m.audio && m.kind !== 'video');
+
+			let thumb = '';
+			if (m?.kind === 'image' && m.image) {
+				thumb = `<img class="thumb" src="${esc(m.image)}" alt="" loading="lazy">`;
+			} else if (m?.kind === 'video') {
+				thumb = m.poster
+					? `<span class="thumb-wrap"><img class="thumb" src="${esc(m.poster)}" alt="" loading="lazy"><span class="play-glyph">${playIcon}</span></span>`
+					: `<span class="thumb thumb-empty"><span class="play-glyph">${playIcon}</span></span>`;
+			}
+
+			const media = thumb
+				? `<span class="post-media${showAudio ? ' has-audio' : ''}">${thumb}</span>`
+				: '';
+
+			const play = showAudio
+				? `<button type="button" class="audio-play" data-src="${esc(m.audio)}" aria-pressed="false" aria-label="play audio">${playIcon}${pauseIcon}</button>`
+				: '';
+
+			const audioOnly = showAudio && !thumb;
+
+			return `    <li class="post${audioOnly ? ' audio-only' : ''}" data-tags="${esc(p.tags.join(' '))}">
       <a class="post-link" href="/posts/${esc(p.slug)}/">
         <time datetime="${esc(p.date)}">${esc(p.date)}</time>
-        <span class="post-title">${esc(p.title)}</span>
-        <span class="post-excerpt">${esc(p.summary)}</span>
-        ${p.tags.length ? `<span class="post-tags">${tagList(p.tags)}</span>` : ''}
+        <span class="post-body">
+          <span class="post-title">${esc(p.title)}</span>
+          <span class="post-excerpt">${esc(p.summary)}</span>
+          ${p.tags.length ? `<span class="post-tags">${tagList(p.tags)}</span>` : ''}
+        </span>
+        ${media}
       </a>
-    </li>`
-		)
+      ${play}
+    </li>`;
+		})
 		.join('\n');
 
 	return layout({
@@ -279,11 +346,15 @@ ${items}
         var match = filter === 'all' || tags.indexOf(filter) !== -1;
         post.hidden = !match;
         if (match) shown++;
+        if (!match) {
+          var play = post.querySelector('.audio-play');
+          if (play && play._audio) play._audio.pause();
+        }
       });
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === filter));
       });
-      toggle.textContent = filter === 'all' ? 'filter' : '#' + filter;
+      toggle.textContent = filter === 'all' ? 'filter' : filter;
       toggle.setAttribute('aria-label', filter === 'all' ? 'filter posts' : 'filter posts, showing ' + filter);
       if (empty) empty.hidden = shown !== 0;
       if (window.history && history.replaceState) {
@@ -309,6 +380,33 @@ ${items}
         open(false);
         toggle.focus();
       }
+    });
+
+    var plays = Array.prototype.slice.call(document.querySelectorAll('.audio-play'));
+    plays.forEach(function (btn) {
+      var el = new Audio(btn.getAttribute('data-src'));
+      el.preload = 'none';
+      btn._audio = el;
+
+      function set(playing) {
+        btn.setAttribute('aria-pressed', String(playing));
+        btn.setAttribute('aria-label', playing ? 'pause audio' : 'play audio');
+      }
+
+      btn.addEventListener('click', function () {
+        if (el.paused) {
+          plays.forEach(function (other) {
+            if (other !== btn && other._audio && !other._audio.paused) other._audio.pause();
+          });
+          el.play();
+        } else {
+          el.pause();
+        }
+      });
+
+      el.addEventListener('play', function () { set(true); });
+      el.addEventListener('pause', function () { set(false); });
+      el.addEventListener('ended', function () { set(false); });
     });
 
     var m = location.hash.match(/^#tag=(.+)$/);
