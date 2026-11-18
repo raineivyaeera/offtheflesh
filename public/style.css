@@ -222,20 +222,13 @@ hr {
 
 .post {
 	position: relative;
-	padding: 0.75rem 0.5rem;
-}
-
-.post + .post {
+	padding: 0.9rem 0.5rem;
 	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 }
 
 /* keep the row at least as tall as its art, so it never crosses a rule */
 .post.has-media {
 	min-height: 6.5rem;
-}
-
-.post.first-shown {
-	border-top: 0;
 }
 
 .post:hover {

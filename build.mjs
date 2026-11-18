@@ -423,18 +423,11 @@ ${items}
 
     function apply(filter) {
       var shown = 0;
-      var firstShown = null;
       posts.forEach(function (post) {
         var tags = (post.getAttribute('data-tags') || '').split(' ');
         var match = filter === 'all' || tags.indexOf(filter) !== -1;
         post.hidden = !match;
-        if (match) {
-          shown++;
-          if (!firstShown) firstShown = post;
-        }
-      });
-      posts.forEach(function (post) {
-        post.classList.toggle('first-shown', post === firstShown);
+        if (match) shown++;
       });
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === filter));
