@@ -233,10 +233,11 @@ function layout({ title, description, body, canonical }) {
 	const url = canonical ? `${baseUrl}${canonical}` : `${baseUrl}/`;
 
 	return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color:#130104">
 <head>
+<!-- first thing the parser sees: paint everything dark immediately -->
+<style>html,body{background-color:#130104}html{color-scheme:dark}body{color:#d4be98}a{color:inherit}.i-pause{display:none}</style>
 <meta charset="UTF-8">
-<style>html{background:#130104;color-scheme:dark}body{background:#130104;color:#d4be98}a{color:inherit}.i-pause{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${pageTitle}</title>
 <meta name="description" content="${desc}">
