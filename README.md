@@ -21,10 +21,10 @@ only `title` and `date` really matter. `tags` become the filter options on the
 front page. `summary` is optional — if you leave it out, the first ~180
 characters of the post are used. add `draft: true` to hide a post.
 
-the first image, audio or video in a post becomes its timeline media: images
-show a thumbnail, audio gets a play button, and video gets a thumbnail that
-opens the post. to give a video a thumbnail, add `poster="/media/name.jpg"` to
-the `<video>` tag.
+the first image or video in a post becomes its timeline thumbnail; a video
+thumbnail opens the post. audio is not played in the timeline — it becomes a
+play button inside the post. to give a video a thumbnail, add
+`poster="/media/name.jpg"` to the `<video>` tag.
 
 if a file starts with `YYYY-MM-DD-`, that date is used when `date` is missing.
 

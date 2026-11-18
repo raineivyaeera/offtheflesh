@@ -117,15 +117,13 @@ const attrOf = (tag, name) => {
 	return m ? m[1] ?? m[2] ?? m[3] ?? '' : '';
 };
 
-/* the first image, sound or video in a post — used for the timeline */
+/* the first image or video in a post — used for the timeline thumbnail */
 function mediaOf(html) {
 	const img = html.match(/<img\b[^>]*>/i);
-	const audio = html.match(/<audio\b[^>]*>/i);
 	const video = html.match(/<video\b[^>]*>/i);
 
 	const first = [
 		img && { kind: 'image', index: img.index },
-		audio && { kind: 'audio', index: audio.index },
 		video && { kind: 'video', index: video.index },
 	]
 		.filter(Boolean)
@@ -133,20 +131,34 @@ function mediaOf(html) {
 
 	if (!first) return null;
 
-	let audioSrc = audio ? attrOf(audio[0], 'src') : '';
-	if (audio && !audioSrc) {
-		const end = html.indexOf('</audio>', audio.index);
-		const block = html.slice(audio.index, end === -1 ? undefined : end);
-		const source = block.match(/<source\b[^>]*>/i);
-		if (source) audioSrc = attrOf(source[0], 'src');
-	}
-
 	return {
 		kind: first.kind,
 		image: img ? attrOf(img[0], 'src') : '',
 		poster: video ? attrOf(video[0], 'poster') : '',
-		audio: audioSrc,
 	};
+}
+
+/* turn <audio> in a post into a play button inside the article */
+function audioPlayers(html) {
+	return html.replace(/<audio\b([^>]*)>([\s\S]*?)<\/audio>/gi, (match, attrs, inner) => {
+		const tag = `<audio${attrs}>`;
+		let src = attrOf(tag, 'src');
+
+		if (!src) {
+			const source = inner.match(/<source\b[^>]*>/i);
+			if (source) src = attrOf(source[0], 'src');
+		}
+
+		if (!src) return match;
+
+		return `<span class="player" data-src="${esc(src)}">
+  <button type="button" class="player-toggle" aria-pressed="false" aria-label="play audio">${playIcon}${pauseIcon}</button>
+  <span class="player-main">
+    <span class="player-track" aria-hidden="true"><span class="player-fill"></span></span>
+    <span class="player-time"><span class="player-current">0:00</span> / <span class="player-duration">0:00</span></span>
+  </span>
+</span>`;
+	});
 }
 
 /* ------------------------------------------------------------------
@@ -177,7 +189,7 @@ async function loadPosts() {
 			slugify(base.replace(/^\d{4}-\d{2}-\d{2}-?/, '')) ||
 			slugify(data.title || base);
 
-		const html = marked.parse(body);
+		const html = audioPlayers(marked.parse(body));
 		const date = isoDate(data.date) || isoDate(fileDate) || mtime;
 
 		posts.push({
@@ -269,7 +281,6 @@ function indexPage(posts) {
 	const items = posts
 		.map((p) => {
 			const m = p.media;
-			const showAudio = Boolean(m && m.audio && m.kind !== 'video');
 
 			let thumb = '';
 			if (m?.kind === 'image' && m.image) {
@@ -280,27 +291,18 @@ function indexPage(posts) {
 					: `<span class="thumb thumb-empty"><span class="play-glyph">${playIcon}</span></span>`;
 			}
 
-			const media = thumb
-				? `<span class="post-media${showAudio ? ' has-audio' : ''}">${thumb}</span>`
-				: '';
+			const media = thumb ? `<span class="post-media">${thumb}</span>` : '';
 
-			const play = showAudio
-				? `<button type="button" class="audio-play" data-src="${esc(m.audio)}" aria-pressed="false" aria-label="play audio">${playIcon}${pauseIcon}</button>`
-				: '';
-
-			const audioOnly = showAudio && !thumb;
-
-			return `    <li class="post${audioOnly ? ' audio-only' : ''}" data-tags="${esc(p.tags.join(' '))}">
+			return `    <li class="post" data-tags="${esc(p.tags.join(' '))}">
       <a class="post-link" href="/posts/${esc(p.slug)}/">
-        <time datetime="${esc(p.date)}">${esc(p.date)}</time>
+        ${media}
         <span class="post-body">
           <span class="post-title">${esc(p.title)}</span>
           <span class="post-excerpt">${esc(p.summary)}</span>
           ${p.tags.length ? `<span class="post-tags">${tagList(p.tags)}</span>` : ''}
         </span>
-        ${media}
+        <time datetime="${esc(p.date)}">${esc(p.date)}</time>
       </a>
-      ${play}
     </li>`;
 		})
 		.join('\n');
@@ -346,10 +348,6 @@ ${items}
         var match = filter === 'all' || tags.indexOf(filter) !== -1;
         post.hidden = !match;
         if (match) shown++;
-        if (!match) {
-          var play = post.querySelector('.audio-play');
-          if (play && play._audio) play._audio.pause();
-        }
       });
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === filter));
@@ -382,33 +380,6 @@ ${items}
       }
     });
 
-    var plays = Array.prototype.slice.call(document.querySelectorAll('.audio-play'));
-    plays.forEach(function (btn) {
-      var el = new Audio(btn.getAttribute('data-src'));
-      el.preload = 'none';
-      btn._audio = el;
-
-      function set(playing) {
-        btn.setAttribute('aria-pressed', String(playing));
-        btn.setAttribute('aria-label', playing ? 'pause audio' : 'play audio');
-      }
-
-      btn.addEventListener('click', function () {
-        if (el.paused) {
-          plays.forEach(function (other) {
-            if (other !== btn && other._audio && !other._audio.paused) other._audio.pause();
-          });
-          el.play();
-        } else {
-          el.pause();
-        }
-      });
-
-      el.addEventListener('play', function () { set(true); });
-      el.addEventListener('pause', function () { set(false); });
-      el.addEventListener('ended', function () { set(false); });
-    });
-
     var m = location.hash.match(/^#tag=(.+)$/);
     if (m) apply(decodeURIComponent(m[1]));
   })();
@@ -434,7 +405,70 @@ ${p.html}
     </div>
 
     <p class="back"><a href="/">← all posts</a></p>
-  </article>`,
+  </article>
+
+  <script>
+  (function () {
+    var players = Array.prototype.slice.call(document.querySelectorAll('.player'));
+
+    function fmt(t) {
+      if (!isFinite(t) || t < 0) return '0:00';
+      var m = Math.floor(t / 60);
+      var s = Math.floor(t % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    players.forEach(function (p) {
+      var audio = new Audio(p.getAttribute('data-src'));
+      audio.preload = 'metadata';
+      p._audio = audio;
+
+      var btn = p.querySelector('.player-toggle');
+      var track = p.querySelector('.player-track');
+      var fill = p.querySelector('.player-fill');
+      var cur = p.querySelector('.player-current');
+      var dur = p.querySelector('.player-duration');
+
+      function draw() {
+        var d = audio.duration || 0;
+        fill.style.width = d ? (audio.currentTime / d) * 100 + '%' : '0%';
+        cur.textContent = fmt(audio.currentTime);
+        if (d) dur.textContent = fmt(d);
+      }
+
+      function set(playing) {
+        btn.setAttribute('aria-pressed', String(playing));
+        btn.setAttribute('aria-label', playing ? 'pause audio' : 'play audio');
+      }
+
+      btn.addEventListener('click', function () {
+        if (audio.paused) {
+          players.forEach(function (other) {
+            if (other !== p && other._audio && !other._audio.paused) other._audio.pause();
+          });
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      });
+
+      track.addEventListener('click', function (e) {
+        var r = track.getBoundingClientRect();
+        var part = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+        if (audio.duration) {
+          audio.currentTime = part * audio.duration;
+          draw();
+        }
+      });
+
+      audio.addEventListener('loadedmetadata', draw);
+      audio.addEventListener('timeupdate', draw);
+      audio.addEventListener('play', function () { set(true); });
+      audio.addEventListener('pause', function () { set(false); });
+      audio.addEventListener('ended', function () { set(false); audio.currentTime = 0; draw(); });
+    });
+  })();
+  </script>`,
 	});
 }
 
