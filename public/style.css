@@ -488,7 +488,7 @@ hr {
 	max-height: 70vh;
 	width: auto;
 	height: auto;
-	margin: 2rem auto;
+	margin: 2rem 0;
 }
 
 .prose video {
@@ -497,7 +497,7 @@ hr {
 	max-height: 70vh;
 	width: auto;
 	height: auto;
-	margin: 2rem auto;
+	margin: 2rem 0;
 }
 
 .prose figure {
