@@ -262,7 +262,7 @@ ${playerScript}
 `;
 }
 
-const tagList = (tags) => tags.map((t) => esc(t)).join(' ');
+const tagList = (tags) => tags.map((t) => esc(t)).join(', ');
 
 const playIcon = `<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>`;
 const pauseIcon = `<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2.5" width="3" height="11" fill="currentColor"/><rect x="9" y="2.5" width="3" height="11" fill="currentColor"/></svg>`;
@@ -423,11 +423,18 @@ ${items}
 
     function apply(filter) {
       var shown = 0;
+      var firstShown = null;
       posts.forEach(function (post) {
         var tags = (post.getAttribute('data-tags') || '').split(' ');
         var match = filter === 'all' || tags.indexOf(filter) !== -1;
         post.hidden = !match;
-        if (match) shown++;
+        if (match) {
+          shown++;
+          if (!firstShown) firstShown = post;
+        }
+      });
+      posts.forEach(function (post) {
+        post.classList.toggle('first-shown', post === firstShown);
       });
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === filter));
