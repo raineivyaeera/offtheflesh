@@ -400,6 +400,32 @@ hr {
 	font-size: 0.8rem;
 }
 
+/* the same player, shrunk down into a timeline row */
+
+.post-player {
+	margin: -0.35rem 9rem 0.6rem 8rem;
+	gap: 0.6rem;
+}
+
+.post-player .player-toggle {
+	width: 2rem;
+	height: 2rem;
+}
+
+.post-player .player-toggle svg {
+	width: 0.75rem;
+	height: 0.75rem;
+}
+
+.post-player .player-track {
+	height: 0.22rem;
+}
+
+.post-player .player-time {
+	margin-top: 0.2rem;
+	font-size: 0.7rem;
+}
+
 .empty {
 	color: var(--dim);
 }
@@ -534,5 +560,13 @@ hr {
 	.thumb {
 		width: 3rem;
 		height: 3rem;
+	}
+
+	.post-player {
+		margin: -0.2rem 0.5rem 0.6rem 6.5rem;
+	}
+
+	.post-player .player-time {
+		font-size: 0.65rem;
 	}
 }

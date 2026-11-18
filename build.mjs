@@ -129,12 +129,15 @@ function mediaOf(html) {
 		.filter(Boolean)
 		.sort((a, b) => a.index - b.index)[0];
 
-	if (!first) return null;
+	const player = html.match(/<span class="player"[^>]*\bdata-src="([^"]*)"/i);
+
+	if (!first && !player) return null;
 
 	return {
-		kind: first.kind,
+		kind: first ? first.kind : '',
 		image: img ? attrOf(img[0], 'src') : '',
 		poster: video ? attrOf(video[0], 'poster') : '',
+		audio: player ? player[1] : '',
 	};
 }
 
@@ -253,6 +256,7 @@ function layout({ title, description, body, canonical }) {
 ${body}
 </main>
 <footer class="site-footer"><sub>of the flesh — made with raine © 2026</sub></footer>
+${playerScript}
 </body>
 </html>
 `;
@@ -262,6 +266,71 @@ const tagList = (tags) => tags.map((t) => esc(t)).join(' ');
 
 const playIcon = `<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>`;
 const pauseIcon = `<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2.5" width="3" height="11" fill="currentColor"/><rect x="9" y="2.5" width="3" height="11" fill="currentColor"/></svg>`;
+
+/* every .player on a page — inside a post or in the timeline */
+const playerScript = `<script>
+(function () {
+  var players = Array.prototype.slice.call(document.querySelectorAll('.player'));
+  if (!players.length) return;
+
+  function fmt(t) {
+    if (!isFinite(t) || t < 0) return '0:00';
+    var m = Math.floor(t / 60);
+    var s = Math.floor(t % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  players.forEach(function (p) {
+    var audio = new Audio(p.getAttribute('data-src'));
+    audio.preload = 'metadata';
+    p._audio = audio;
+
+    var btn = p.querySelector('.player-toggle');
+    var track = p.querySelector('.player-track');
+    var fill = p.querySelector('.player-fill');
+    var cur = p.querySelector('.player-current');
+    var dur = p.querySelector('.player-duration');
+
+    function draw() {
+      var d = audio.duration || 0;
+      fill.style.width = d ? (audio.currentTime / d) * 100 + '%' : '0%';
+      cur.textContent = fmt(audio.currentTime);
+      if (d) dur.textContent = fmt(d);
+    }
+
+    function set(playing) {
+      btn.setAttribute('aria-pressed', String(playing));
+      btn.setAttribute('aria-label', playing ? 'pause audio' : 'play audio');
+    }
+
+    btn.addEventListener('click', function () {
+      if (audio.paused) {
+        players.forEach(function (other) {
+          if (other !== p && other._audio && !other._audio.paused) other._audio.pause();
+        });
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+
+    track.addEventListener('click', function (e) {
+      var r = track.getBoundingClientRect();
+      var part = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      if (audio.duration) {
+        audio.currentTime = part * audio.duration;
+        draw();
+      }
+    });
+
+    audio.addEventListener('loadedmetadata', draw);
+    audio.addEventListener('timeupdate', draw);
+    audio.addEventListener('play', function () { set(true); });
+    audio.addEventListener('pause', function () { set(false); });
+    audio.addEventListener('ended', function () { set(false); audio.currentTime = 0; draw(); });
+  });
+})();
+</script>`;
 
 function indexPage(posts) {
 	const counts = new Map();
@@ -293,6 +362,16 @@ function indexPage(posts) {
 
 			const media = thumb ? `<span class="post-media">${thumb}</span>` : '';
 
+			const player = m?.audio
+				? `<span class="player player-mini post-player" data-src="${esc(m.audio)}">
+        <button type="button" class="player-toggle" aria-pressed="false" aria-label="play audio">${playIcon}${pauseIcon}</button>
+        <span class="player-main">
+          <span class="player-track" aria-hidden="true"><span class="player-fill"></span></span>
+          <span class="player-time"><span class="player-current">0:00</span> / <span class="player-duration">0:00</span></span>
+        </span>
+      </span>`
+				: '';
+
 			return `    <li class="post" data-tags="${esc(p.tags.join(' '))}">
       <a class="post-link" href="/posts/${esc(p.slug)}/">
         ${media}
@@ -303,6 +382,7 @@ function indexPage(posts) {
         </span>
         <time datetime="${esc(p.date)}">${esc(p.date)}</time>
       </a>
+      ${player}
     </li>`;
 		})
 		.join('\n');
@@ -405,70 +485,7 @@ ${p.html}
     </div>
 
     <p class="back"><a href="/">← all posts</a></p>
-  </article>
-
-  <script>
-  (function () {
-    var players = Array.prototype.slice.call(document.querySelectorAll('.player'));
-
-    function fmt(t) {
-      if (!isFinite(t) || t < 0) return '0:00';
-      var m = Math.floor(t / 60);
-      var s = Math.floor(t % 60);
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-
-    players.forEach(function (p) {
-      var audio = new Audio(p.getAttribute('data-src'));
-      audio.preload = 'metadata';
-      p._audio = audio;
-
-      var btn = p.querySelector('.player-toggle');
-      var track = p.querySelector('.player-track');
-      var fill = p.querySelector('.player-fill');
-      var cur = p.querySelector('.player-current');
-      var dur = p.querySelector('.player-duration');
-
-      function draw() {
-        var d = audio.duration || 0;
-        fill.style.width = d ? (audio.currentTime / d) * 100 + '%' : '0%';
-        cur.textContent = fmt(audio.currentTime);
-        if (d) dur.textContent = fmt(d);
-      }
-
-      function set(playing) {
-        btn.setAttribute('aria-pressed', String(playing));
-        btn.setAttribute('aria-label', playing ? 'pause audio' : 'play audio');
-      }
-
-      btn.addEventListener('click', function () {
-        if (audio.paused) {
-          players.forEach(function (other) {
-            if (other !== p && other._audio && !other._audio.paused) other._audio.pause();
-          });
-          audio.play();
-        } else {
-          audio.pause();
-        }
-      });
-
-      track.addEventListener('click', function (e) {
-        var r = track.getBoundingClientRect();
-        var part = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-        if (audio.duration) {
-          audio.currentTime = part * audio.duration;
-          draw();
-        }
-      });
-
-      audio.addEventListener('loadedmetadata', draw);
-      audio.addEventListener('timeupdate', draw);
-      audio.addEventListener('play', function () { set(true); });
-      audio.addEventListener('pause', function () { set(false); });
-      audio.addEventListener('ended', function () { set(false); audio.currentTime = 0; draw(); });
-    });
-  })();
-  </script>`,
+  </article>`,
 	});
 }
 
