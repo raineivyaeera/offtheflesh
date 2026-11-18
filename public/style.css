@@ -129,8 +129,6 @@ hr {
 
 .masthead {
 	margin-bottom: 2rem;
-	padding-bottom: 1rem;
-	border-bottom: 1px dashed rgba(168, 145, 111, 0.18);
 }
 
 .masthead h1 {
@@ -228,7 +226,7 @@ hr {
 }
 
 .post + .post {
-	border-top: 1px dashed rgba(168, 145, 111, 0.16);
+	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 }
 
 .post.first-shown {
@@ -542,7 +540,7 @@ hr {
 	max-width: 46rem;
 	margin: 4rem auto 0;
 	padding-top: 1.25rem;
-	border-top: 1px dashed rgba(168, 145, 111, 0.18);
+	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 	color: var(--dim);
 }
 
