@@ -236,7 +236,7 @@ function layout({ title, description, body, canonical }) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<style>html{background:#130104;color-scheme:dark}body{background:#130104;color:#d4be98}a{color:inherit}</style>
+<style>html{background:#130104;color-scheme:dark}body{background:#130104;color:#d4be98}a{color:inherit}.i-pause{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${pageTitle}</title>
 <meta name="description" content="${desc}">
@@ -264,8 +264,8 @@ ${playerScript}
 
 const tagList = (tags) => tags.map((t) => esc(t)).join(', ');
 
-const playIcon = `<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>`;
-const pauseIcon = `<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2.5" width="3" height="11" fill="currentColor"/><rect x="9" y="2.5" width="3" height="11" fill="currentColor"/></svg>`;
+const playIcon = `<svg class="i-play" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>`;
+const pauseIcon = `<svg class="i-pause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2.5" width="3" height="11" fill="currentColor"/><rect x="9" y="2.5" width="3" height="11" fill="currentColor"/></svg>`;
 
 /* every .player on a page — inside a post or in the timeline */
 const playerScript = `<script>
