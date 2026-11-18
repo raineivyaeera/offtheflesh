@@ -10,8 +10,8 @@
 
 @font-face {
 	font-family: "MononokiNF";
-	src: url("Mononoki/MononokiNerdFont-Regular.woff2") format("woff2"),
-	     url("Mononoki/MononokiNerdFont-Regular.ttf") format("truetype");
+	src: url("/Mononoki/MononokiNerdFont-Regular.woff2") format("woff2"),
+	     url("/Mononoki/MononokiNerdFont-Regular.ttf") format("truetype");
 	font-weight: normal;
 	font-style: normal;
 	font-display: swap;
@@ -19,8 +19,8 @@
 
 @font-face {
 	font-family: "MononokiNF";
-	src: url("Mononoki/MononokiNerdFont-Bold.woff2") format("woff2"),
-	     url("Mononoki/MononokiNerdFont-Bold.ttf") format("truetype");
+	src: url("/Mononoki/MononokiNerdFont-Bold.woff2") format("woff2"),
+	     url("/Mononoki/MononokiNerdFont-Bold.ttf") format("truetype");
 	font-weight: bold;
 	font-style: normal;
 	font-display: swap;
