@@ -1,0 +1,14 @@
+{
+  "name": "oftheflesh",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "of the flesh — a small handmade blog",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node serve.mjs"
+  },
+  "dependencies": {
+    "marked": "^18.2.1"
+  }
+}
