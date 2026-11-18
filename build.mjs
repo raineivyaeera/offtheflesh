@@ -236,7 +236,7 @@ function layout({ title, description, body, canonical }) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<style>html,body{background-color:#130104}</style>
+<style>html{background:#130104;color-scheme:dark}body{background:#130104;color:#d4be98}a{color:inherit}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${pageTitle}</title>
 <meta name="description" content="${desc}">
