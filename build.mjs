@@ -14,8 +14,7 @@ import { marked } from 'marked';
    site settings — the only things you normally need to change
    ------------------------------------------------------------------ */
 const site = {
-	title: 'of the flesh',
-	tagline: 'a record of things i make, as i make them',
+	title: 'ofTheFlesh',
 	description: 'A record of things I make, as I make them.',
 	author: 'Raine Eera',
 	// set this to your real Cloudflare Pages / custom domain once you know it
@@ -244,10 +243,13 @@ function indexPage(posts) {
 		canonical: '/',
 		body: `  <header class="masthead">
     <h1><a href="/">${esc(site.title)}</a></h1>
-    <p class="tagline">${esc(site.tagline)}</p>
   </header>
 
-  <nav class="filters" aria-label="filter posts by tag">
+  <div class="feed-bar">
+    <button type="button" class="filter-toggle" aria-expanded="false" aria-controls="filters" aria-label="filter posts">filter</button>
+  </div>
+
+  <nav class="filters" id="filters" aria-label="filter posts by tag" hidden>
       ${filters}
   </nav>
 
@@ -259,9 +261,16 @@ ${items}
 
   <script>
   (function () {
-    var buttons = Array.prototype.slice.call(document.querySelectorAll('.filters button'));
+    var toggle = document.querySelector('.filter-toggle');
+    var panel = document.getElementById('filters');
+    var buttons = Array.prototype.slice.call(panel.querySelectorAll('button'));
     var posts = Array.prototype.slice.call(document.querySelectorAll('.timeline .post'));
     var empty = document.querySelector('.empty');
+
+    function open(show) {
+      panel.hidden = !show;
+      toggle.setAttribute('aria-expanded', String(show));
+    }
 
     function apply(filter) {
       var shown = 0;
@@ -274,14 +283,32 @@ ${items}
       buttons.forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === filter));
       });
+      toggle.textContent = filter === 'all' ? 'filter' : '#' + filter;
+      toggle.setAttribute('aria-label', filter === 'all' ? 'filter posts' : 'filter posts, showing ' + filter);
       if (empty) empty.hidden = shown !== 0;
       if (window.history && history.replaceState) {
         history.replaceState(null, '', filter === 'all' ? location.pathname : location.pathname + '#tag=' + encodeURIComponent(filter));
       }
     }
 
+    toggle.addEventListener('click', function () { open(panel.hidden); });
+
     buttons.forEach(function (b) {
-      b.addEventListener('click', function () { apply(b.getAttribute('data-filter')); });
+      b.addEventListener('click', function () {
+        apply(b.getAttribute('data-filter'));
+        open(false);
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.hidden && !panel.contains(e.target) && !toggle.contains(e.target)) open(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) {
+        open(false);
+        toggle.focus();
+      }
     });
 
     var m = location.hash.match(/^#tag=(.+)$/);

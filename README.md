@@ -56,7 +56,8 @@ your real domain, otherwise it uses the url in `build.mjs`.
 build.mjs        the whole generator
 serve.mjs        local preview server
 posts/*.md       your writing
-public/          style.css and fonts, copied into dist as-is
+public/          style.css, fonts and media, copied into dist as-is
+public/media/    images and audio used by posts
 dist/            generated, not committed
 ```
 
