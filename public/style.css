@@ -462,6 +462,21 @@ hr {
 	margin: 0 0 1rem;
 }
 
+.prose strong {
+	color: var(--red);
+	font-weight: 700;
+	-webkit-text-stroke: 0.35px currentColor;
+}
+
+.prose em {
+	color: var(--sage);
+}
+
+.prose strong em,
+.prose em strong {
+	color: var(--purple);
+}
+
 .prose h2,
 .prose h3 {
 	margin: 2rem 0 0.5rem;

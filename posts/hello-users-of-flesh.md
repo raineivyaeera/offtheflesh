@@ -1,13 +1,10 @@
 ---
-title: hello users of flesh
+title: Hello users of flesh!
 date: 2026-11-18
-tags: meta, notes
-summary: the first post, and a note on how this place works.
+tags: post
+summary: Ha, first post! I'm first!
 ---
 
-hello users of flesh!
+Hey there! So this is uh, this is like. Um. Like my um! My creative space? My den? Safe haven? Empyrean?
 
-this is the first post. everything here starts as a markdown file in `posts/` —
-write something, save it, and it shows up on the timeline.
-
-more soon.
+Honestly, the whole purpose of this is to have a space I can entirely call mine. Away from an external platform, social media, or influence. I can put ***whatever*** the hell I want on here, in any medium, and the only unification it has to have is the fact *I* made it.
