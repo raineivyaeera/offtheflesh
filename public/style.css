@@ -477,14 +477,64 @@ hr {
 	color: var(--purple);
 }
 
+.prose h1,
 .prose h2,
-.prose h3 {
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
 	margin: 2rem 0 0.5rem;
+	line-height: 1.4;
+}
+
+.prose h1 {
+	font-size: 1.5rem;
+	color: var(--red);
 }
 
 .prose h2 {
 	font-size: 1.25rem;
 	font-weight: bold;
+	color: var(--cream);
+}
+
+.prose h3 {
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: var(--cream);
+}
+
+.prose h4 {
+	font-size: 1rem;
+	font-weight: bold;
+	color: var(--cream);
+}
+
+.prose h5,
+.prose h6 {
+	font-size: 0.9rem;
+	font-weight: bold;
+	color: var(--dim);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.prose a {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
+	text-decoration-color: var(--muted);
+}
+
+.prose a:hover {
+	text-decoration-color: var(--cream);
+}
+
+.prose blockquote {
+	margin: 1.5rem 0;
+	padding-left: 1rem;
+	border-left: 1px dashed var(--muted);
+	color: var(--dim);
 }
 
 .prose ul,
@@ -495,6 +545,15 @@ hr {
 
 .prose li {
 	margin-bottom: 0.25rem;
+}
+
+.prose li > ul,
+.prose li > ol {
+	margin: 0.25rem 0 0;
+}
+
+.prose li::marker {
+	color: var(--dim);
 }
 
 .prose img {
@@ -524,6 +583,13 @@ hr {
 	font-size: 0.9rem;
 }
 
+.prose code {
+	padding: 0.05rem 0.3rem;
+	background: #1c0308;
+	border: 1px solid var(--muted);
+	color: var(--purple);
+}
+
 .prose pre {
 	margin: 0 0 1rem;
 	padding: 0.75rem 1rem;
@@ -533,7 +599,16 @@ hr {
 }
 
 .prose pre code {
+	padding: 0;
+	background: none;
+	border: 0;
 	color: var(--cream);
+}
+
+.prose hr {
+	margin: 2rem 0;
+	border: 0;
+	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 }
 
 .prose table {
@@ -546,6 +621,40 @@ hr {
 	border: 1px solid var(--muted);
 	padding: 0.25rem 0.6rem;
 	text-align: left;
+}
+
+.prose th {
+	background: #1c0308;
+	color: var(--cream);
+	font-weight: bold;
+}
+
+.prose del,
+.prose s {
+	color: var(--dim);
+}
+
+.prose mark {
+	background: rgba(212, 90, 94, 0.22);
+	color: var(--cream);
+}
+
+.prose kbd {
+	padding: 0.05rem 0.3rem;
+	border: 1px solid var(--muted);
+	border-bottom-width: 2px;
+	color: var(--cream);
+}
+
+.prose sup,
+.prose sub {
+	font-size: 0.75em;
+	line-height: 0;
+}
+
+.prose input[type="checkbox"] {
+	margin-right: 0.4rem;
+	accent-color: var(--red);
 }
 
 .back {
