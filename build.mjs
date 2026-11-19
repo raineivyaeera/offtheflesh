@@ -110,8 +110,6 @@ function excerptOf(html, max = 180) {
 	return text.slice(0, max).replace(/\s+\S*$/, '') + '…';
 }
 
-const readingTime = (html) => Math.max(1, Math.round(plain(html).split(/\s+/).length / 220));
-
 const attrOf = (tag, name) => {
 	const m = tag.match(new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'));
 	return m ? m[1] ?? m[2] ?? m[3] ?? '' : '';
@@ -205,7 +203,6 @@ async function loadPosts() {
 				: [],
 			summary: data.summary || excerptOf(html),
 			html,
-			minutes: readingTime(html),
 			media: mediaOf(html),
 		});
 	}
@@ -475,7 +472,7 @@ function postPage(p) {
 		canonical: `/posts/${p.slug}/`,
 		body: `  <article class="post-page">
     <header class="post-header">
-      <p class="post-meta"><time datetime="${esc(p.date)}">${esc(p.date)}</time> · ${p.minutes} min read${
+      <p class="post-meta"><time datetime="${esc(p.date)}">${esc(p.date)}</time>${
 				p.tags.length ? ` · <span class="post-tags">${tagList(p.tags)}</span>` : ''
 			}</p>
       <h1>${esc(p.title)}</h1>
