@@ -253,7 +253,7 @@ function layout({ title, description, body, canonical }) {
 <main class="page">
 ${body}
 </main>
-<footer class="site-footer"><sub>© 2026 — of the flesh — made with raine</sub></footer>
+<footer class="site-footer"><sub>@2026 — of the flesh — made with raine</sub></footer>
 ${playerScript}
 </body>
 </html>

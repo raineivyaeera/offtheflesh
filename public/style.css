@@ -671,6 +671,12 @@ hr {
 	padding-top: 1.25rem;
 	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 	color: var(--dim);
+	font-weight: bold;
+}
+
+.site-footer sub {
+	font-size: 0.9rem;
+	bottom: 0;
 }
 
 /* ----------------------------------------------------------------
