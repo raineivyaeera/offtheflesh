@@ -672,11 +672,10 @@ hr {
 	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 	color: var(--dim);
 	font-weight: bold;
-	-webkit-text-stroke: 0.5px currentColor;
 }
 
 .site-footer sub {
-	font-size: 0.9rem;
+	font-size: 1rem;
 	bottom: 0;
 }
 
