@@ -226,6 +226,11 @@ hr {
 	border-top: 1px dashed rgba(168, 145, 111, 0.38);
 }
 
+.post:last-child,
+.post.last-shown {
+	border-bottom: 1px dashed rgba(168, 145, 111, 0.38);
+}
+
 /* keep the row at least as tall as its art, so it never crosses a rule */
 .post.has-media {
 	min-height: 6.5rem;
