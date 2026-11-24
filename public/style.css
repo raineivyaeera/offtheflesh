@@ -399,7 +399,7 @@ hr {
 .player-track {
 	display: block;
 	height: 0.3rem;
-	margin-bottom: 0.35rem;
+	margin-bottom: 0.45rem;
 	background: var(--muted);
 	cursor: pointer;
 }
@@ -446,7 +446,7 @@ hr {
 
 .post-player .player-track {
 	height: 0.22rem;
-	margin-bottom: 0.3rem;
+	margin-bottom: 0.4rem;
 }
 
 .post-player .player-time {
