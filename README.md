@@ -22,20 +22,29 @@ front page. `summary` is optional — if you leave it out, the first ~180
 characters of the post are used. add `draft: true` to hide a post.
 
 the first image or video in a post becomes its timeline thumbnail; a video
-thumbnail opens the post. audio is not played in the timeline — it becomes a
-play button inside the post. to give a video a thumbnail, add
+thumbnail opens the post. audio gets the same play button in the timeline and
+inside the post. to give a video a thumbnail, add
 `poster="/media/name.jpg"` to the `<video>` tag.
 
 if a file starts with `YYYY-MM-DD-`, that date is used when `date` is missing.
 
 ## previewing
 
+just run:
+
+```
+./launch.sh
+```
+
+it installs anything missing, opens <http://localhost:4321> in your browser,
+and rebuilds whenever you save a file. hit Ctrl+C to stop.
+
+or, without the browser:
+
 ```
 npm install
 npm run dev
 ```
-
-opens at <http://localhost:4321> and rebuilds whenever you save a file.
 
 just build once with:
 
